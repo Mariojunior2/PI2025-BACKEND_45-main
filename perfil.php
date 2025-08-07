@@ -27,6 +27,7 @@ $estatisticas = buscarEstatisticasUsuario($pdo, $usuarioAtualId);
 $grupos = buscarGruposUsuario($pdo, $usuarioAtualId);
 
 // Buscar conexões do usuário
+$conectados = buscarConectadosAoUsuario($pdo, $usuarioAtualId);
 $conexoes = buscarConexoesUsuario($pdo, $usuarioAtualId);
 
 // Buscar atividades recentes
@@ -113,6 +114,10 @@ $atividades = buscarAtividadesUsuario($pdo, $usuarioAtualId);
                         </div>
                         <div class="perfil-card-content">
                             <div class="perfil-grid perfil-grid-cols-4 perfil-gap-4 perfil-text-center">
+                                 <div>
+                                    <p class="perfil-stats-value"><?= $estatisticas['conectados'] ?></p>
+                                    <p class="perfil-stats-label">conectados</p>
+                                </div>
                                 <div>
                                     <p class="perfil-stats-value"><?= $estatisticas['conexoes'] ?></p>
                                     <p class="perfil-stats-label">Conexões</p>
@@ -252,8 +257,10 @@ $atividades = buscarAtividadesUsuario($pdo, $usuarioAtualId);
                                     <div class="perfil-card-title">Minhas Conexões</div>
                                 </div>
                                 <div class="perfil-card-content">
-                                    <p class="perfil-text-gray perfil-mb-4">Você possui <?= $estatisticas['conexoes'] ?> conexões</p>
-                                    
+                                    <p class="perfil-text-gray perfil-mb-4">Você possui <?= $estatisticas['conexoes'] ?> conexoes</p>
+                            
+
+
                                     <?php if (empty($conexoes)): ?>
                                         <p class="perfil-text-gray">Você ainda não tem conexões. Explore a comunidade para conhecer novas pessoas!</p>
                                     <?php else: ?>
@@ -272,8 +279,34 @@ $atividades = buscarAtividadesUsuario($pdo, $usuarioAtualId);
                                                         <h4 class="perfil-connection-name"><?= htmlspecialchars($conexao['nome']) ?></h4>
                                                         <p class="perfil-connection-username">@<?= htmlspecialchars($conexao['matricula']) ?></p>
                                                     </div>
+    
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                  
+                                    <?php endif; ?>
+                                    <p class="perfil-text-gray perfil-mb-4">Você possui <?= $estatisticas['conectados'] ?> conectados</p>
+                                    
+                                    <?php if (empty($conectados)): ?>
+                                        <p class="perfil-text-gray">Você ainda não tem conexões. Explore a comunidade para conhecer novas pessoas!</p>
+                                    <?php else: ?>
+                                        <div class="perfil-grid perfil-grid-cols-1 perfil-md-grid-cols-2 perfil-gap-4">
+                                            <?php foreach ($conectados as $conectado): ?>
+                                                <div class="perfil-connection-item">
+                                                    <div class="perfil-connection-avatar">
+                                                        <?php 
+                                                        $nome = urlencode($conectado['nome']);
+                                                        $cor = substr(md5($conectado['nome']), 0, 6);
+                                                        ?>
+                                                        <img src="https://ui-avatars.com/api/?name=<?= $nome ?>&background=<?= $cor ?>&color=fff" 
+                                                             alt="<?= htmlspecialchars($conectado['nome']) ?>">
+                                                    </div>
+                                                    <div class="perfil-ml-3 perfil-flex-1">
+                                                        <h4 class="perfil-connection-name"><?= htmlspecialchars($conectado['nome']) ?></h4>
+                                                        <p class="perfil-connection-username">@<?= htmlspecialchars($conectado['matricula']) ?></p>
+                                                    </div>
                                                     <button class="perfil-btn-ghost" 
-                                                            onclick="location.href='chat.php?usuario_id=<?= $conexao['idusuario'] ?>'">
+                                                            onclick="location.href='chat.php?usuario_id=<?= $conectado['idusuario'] ?>'">
                                                         <i data-lucide="message-square" class="perfil-icon-sm"></i>
                                                     </button>
                                                 </div>

@@ -44,12 +44,20 @@ function buscarAparenciaUsuario($pdo, $usuarioId) {
  * Busca estatísticas do usuário
  */
 function buscarEstatisticasUsuario($pdo, $usuarioId) {
+    // Conexões (seguindo)
+    $sql = "SELECT COUNT(*) FROM usuario_seguidores WHERE seguidor_id = :usuario_id";
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindValue(':usuario_id', $usuarioId, PDO::PARAM_INT);
+    $stmt->execute();
+    $conexoes = $stmt->fetchColumn();
+    
+    
     // Conexões (seguidores)
     $sql = "SELECT COUNT(*) FROM usuario_seguidores WHERE seguido_id = :usuario_id";
     $stmt = $pdo->prepare($sql);
     $stmt->bindValue(':usuario_id', $usuarioId, PDO::PARAM_INT);
     $stmt->execute();
-    $conexoes = $stmt->fetchColumn();
+    $conectados = $stmt->fetchColumn();
     
     // Grupos
     $sql = "SELECT COUNT(*) FROM grupo_membros WHERE usuario_id = :usuario_id";
@@ -74,13 +82,14 @@ function buscarEstatisticasUsuario($pdo, $usuarioId) {
     
     // Conquistas baseadas em atividades reais
     $conquistas = [];
-    if ($conexoes > 0) $conquistas[] = 'Conectivo';
+    if ($conectados > 0) $conquistas[] = 'Conectivo';
     if ($grupos > 0) $conquistas[] = 'Participativo';
     if ($eventos > 0) $conquistas[] = 'Organizador';
     if ($materiais > 0) $conquistas[] = 'Contribuidor';
     
     return [
         'conexoes' => $conexoes,
+        'conectados' => $conectados,
         'grupos' => $grupos,
         'eventos' => $eventos,
         'materiais' => $materiais,
@@ -111,6 +120,21 @@ function buscarGruposUsuario($pdo, $usuarioId) {
  * Busca conexões do usuário
  */
 function buscarConexoesUsuario($pdo, $usuarioId) {
+    $sql = "SELECT u.idusuario, u.nome, u.matricula
+            FROM usuario u
+            JOIN usuario_seguidores us ON u.idusuario = us.seguido_id
+            WHERE us.seguidor_id = :usuario_id
+            ORDER BY us.data_seguimento DESC
+            LIMIT 4";
+    
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindValue(':usuario_id', $usuarioId, PDO::PARAM_INT);
+    $stmt->execute();
+    
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function buscarConectadosAoUsuario($pdo, $usuarioId) {
     $sql = "SELECT u.idusuario, u.nome, u.matricula
             FROM usuario u
             JOIN usuario_seguidores us ON u.idusuario = us.seguidor_id
