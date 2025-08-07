@@ -91,7 +91,7 @@ $atividades = buscarAtividadesUsuario($pdo, $usuarioAtualId);
                                         <h2 class="perfil-name"><?= htmlspecialchars($usuario['nome']) ?></h2>
                                         <p class="perfil-username">@<?= htmlspecialchars($usuario['matricula']) ?></p>
                                     </div>
-                                    <button class="perfil-btn-outline" onclick="location.href='editar_perfil.php'">
+                                    <button class="perfil-btn-outline" onclick="location.href='configuracao.php'">
                                         <i data-lucide="edit" class="perfil-icon-sm"></i> Editar
                                     </button>
                                 </div>

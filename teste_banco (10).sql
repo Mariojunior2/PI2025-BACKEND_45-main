@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 07/08/2025 às 21:01
+-- Tempo de geração: 07/08/2025 às 21:57
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.1.25
 
@@ -90,7 +90,12 @@ INSERT INTO `grupos` (`id`, `nome`, `descricao`, `criador_id`, `data_criacao`) V
 (8, 'Sarturneiros', 'Vaca sartuaniada ', 11, '2025-08-07 14:24:18'),
 (9, 'Admin1', '123', 11, '2025-08-07 14:36:42'),
 (10, 'Admin1', '123', 11, '2025-08-07 14:37:17'),
-(11, 'Admin1', '123', 11, '2025-08-07 14:38:48');
+(11, 'Admin1', '123', 11, '2025-08-07 14:38:48'),
+(12, 'Grupo1', 'seguidor_id', 11, '2025-08-07 16:12:41'),
+(13, 'Grupo2', 'Grupo2', 11, '2025-08-07 16:13:35'),
+(14, 'Grupo3', 'Grupo3', 11, '2025-08-07 16:13:42'),
+(15, 'Grupo4', 'Grupo4', 11, '2025-08-07 16:13:50'),
+(16, 'Grupo5', 'Grupo5', 11, '2025-08-07 16:14:02');
 
 -- --------------------------------------------------------
 
@@ -138,7 +143,12 @@ INSERT INTO `grupo_membros` (`grupo_id`, `usuario_id`, `data_ingresso`) VALUES
 (8, 11, '2025-08-07 14:24:18'),
 (9, 11, '2025-08-07 14:36:42'),
 (10, 11, '2025-08-07 14:37:17'),
-(11, 11, '2025-08-07 14:38:48');
+(11, 11, '2025-08-07 14:38:48'),
+(12, 11, '2025-08-07 16:12:41'),
+(13, 11, '2025-08-07 16:13:35'),
+(14, 11, '2025-08-07 16:13:42'),
+(15, 11, '2025-08-07 16:13:50'),
+(16, 11, '2025-08-07 16:14:02');
 
 -- --------------------------------------------------------
 
@@ -297,7 +307,7 @@ CREATE TABLE `usuario_config` (
 INSERT INTO `usuario_config` (`id`, `usuario_id`, `bio`, `telefone`, `created_at`, `updated_at`) VALUES
 (1, 1, 'Administrador do sistema com experiência em segurança de dados', '+55 11 91234-5678', '2025-07-09 17:49:50', '2025-07-09 17:49:50'),
 (2, 2, 'Professor de Banco de Dados com 10 anos de experiência', '+55 11 98765-4321', '2025-07-09 17:49:50', '2025-08-07 16:43:29'),
-(3, 11, 'homem legal ', '47988962224', '2025-07-14 17:01:40', '2025-08-07 11:34:24');
+(3, 11, 'homem masculino', '47988962224', '2025-07-14 17:01:40', '2025-08-07 19:56:44');
 
 -- --------------------------------------------------------
 
@@ -383,9 +393,14 @@ CREATE TABLE `usuario_seguidores` (
 --
 
 INSERT INTO `usuario_seguidores` (`seguidor_id`, `seguido_id`, `data_seguimento`) VALUES
+(10, 11, '2025-08-07 14:04:27'),
 (11, 1, '2025-08-07 14:04:21'),
 (11, 2, '2025-08-07 14:06:10'),
-(11, 10, '2025-08-07 14:04:27');
+(11, 3, '2025-08-07 16:31:06'),
+(11, 4, '2025-08-07 16:10:15'),
+(11, 5, '2025-08-07 16:11:41'),
+(11, 6, '2025-08-07 16:11:26'),
+(11, 7, '2025-08-07 16:11:07');
 
 --
 -- Índices para tabelas despejadas
@@ -497,7 +512,7 @@ ALTER TABLE `eventos`
 -- AUTO_INCREMENT de tabela `grupos`
 --
 ALTER TABLE `grupos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT de tabela `materiais`
