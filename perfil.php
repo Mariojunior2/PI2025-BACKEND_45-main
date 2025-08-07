@@ -1,11 +1,48 @@
+<?php
+session_start();
+require 'includes/conexao.php';
+
+// Verifica se o usuário está logado
+$usuarioAtualId = isset($_SESSION['usuario_id']) ? $_SESSION['usuario_id'] : 0;
+
+if (!$usuarioAtualId) {
+    header('Location: login.php');
+    exit;
+}
+
+// Funções para perfil
+require 'functions/perfil_functions.php';
+
+// Buscar dados do usuário
+$usuario = buscarUsuario($pdo, $usuarioAtualId);
+
+// Buscar dados adicionais
+$config = buscarConfigUsuario($pdo, $usuarioAtualId);
+$aparencia = buscarAparenciaUsuario($pdo, $usuarioAtualId);
+
+// Buscar estatísticas
+$estatisticas = buscarEstatisticasUsuario($pdo, $usuarioAtualId);
+
+// Buscar grupos do usuário
+$grupos = buscarGruposUsuario($pdo, $usuarioAtualId);
+
+// Buscar conexões do usuário
+$conexoes = buscarConexoesUsuario($pdo, $usuarioAtualId);
+
+// Buscar atividades recentes
+$atividades = buscarAtividadesUsuario($pdo, $usuarioAtualId);
+?>
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Perfil - TydraPI</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        .sidebar {
+         .sidebar {
             width: 20%;
             position: fixed;
         }
@@ -23,274 +60,278 @@
 
         }
     </style>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
-
     <?php include 'includes/header.php' ?>
 </head>
 <body>
     <?php include 'sidebar.php' ?>
     <div class="perfil-body content-wrapper">
-    <div class="perfil-container perfil-animate-fade-in">
-        <div class="perfil-flex perfil-flex-col perfil-md-flex-row perfil-gap-6">
-            <!-- Coluna de perfil -->
-            <div class="perfil-w-full perfil-md-w-1-3 perfil-space-y-4">
-                <div class="perfil-card perfil-overflow-hidden">
-                    <div class="perfil-gradient-banner"></div>
-                    <div class="perfil-card-content perfil-pt-0 perfil-relative">
-                        <div class="perfil-avatar-container">
-                            <div class="perfil-avatar">
-                                <img src="https://i.pravatar.cc/150?img=68" alt="João Silva" class="perfil-avatar-img">
-                            </div>
-                        </div>
-                        <div class="perfil-pt-12 perfil-pb-4">
-                            <div class="perfil-flex perfil-justify-between perfil-items-start">
-                                <div>
-                                    <h2 class="perfil-name">João Silva</h2>
-                                    <p class="perfil-username">@joaosilva</p>
+        <div class="perfil-container perfil-animate-fade-in">
+            <div class="perfil-flex perfil-flex-col perfil-md-flex-row perfil-gap-6">
+                <!-- Coluna de perfil -->
+                <div class="perfil-w-full perfil-md-w-1-3 perfil-space-y-4">
+                    <div class="perfil-card perfil-overflow-hidden">
+                        <div class="perfil-gradient-banner"></div>
+                        <div class="perfil-card-content perfil-pt-0 perfil-relative">
+                            <div class="perfil-avatar-container">
+                                <div class="perfil-avatar">
+                                    <?php
+                                    // Gerar avatar baseado no nome do usuário
+                                    $nome = urlencode($usuario['nome']);
+                                    $cor = substr(md5($usuario['nome']), 0, 6);
+                                    ?>
+                                    <img src="https://ui-avatars.com/api/?name=<?= $nome ?>&background=<?= $cor ?>&color=fff" 
+                                         alt="<?= htmlspecialchars($usuario['nome']) ?>" 
+                                         class="perfil-avatar-img">
                                 </div>
-                                <button class="perfil-btn-outline">
-                                    <i data-lucide="edit" class="perfil-icon-sm"></i> Editar
-                                </button>
                             </div>
-                            
-                            <p class="perfil-mt-4 perfil-bio">Desenvolvedor Full Stack | React, Node.js, TypeScript | Entusiasta de IA e Tecnologias Emergentes | São Paulo, Brasil</p>
-                            
-                            <div class="perfil-flex perfil-items-center perfil-mt-4 perfil-text-gray perfil-text-sm">
-                                <i data-lucide="calendar" class="perfil-icon-sm perfil-mr-2"></i>
-                                <span>Membro desde Abril 2023</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="perfil-card">
-                    <div class="perfil-card-header">
-                        <div class="perfil-card-title">Estatísticas</div>
-                    </div>
-                    <div class="perfil-card-content">
-                        <div class="perfil-grid perfil-grid-cols-3 perfil-gap-4 perfil-text-center">
-                            <div>
-                                <p class="perfil-stats-value">128</p>
-                                <p class="perfil-stats-label">Conexões</p>
-                            </div>
-                            <div>
-                                <p class="perfil-stats-value">5</p>
-                                <p class="perfil-stats-label">Grupos</p>
-                            </div>
-                            <div>
-                                <p class="perfil-stats-value">92%</p>
-                                <p class="perfil-stats-label">Reputação</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="perfil-card">
-                    <div class="perfil-card-header">
-                        <div class="perfil-card-title">Impressões</div>
-                    </div>
-                    <div class="perfil-card-content">
-                        <div class="perfil-space-y-4">
-                            <div class="perfil-flex perfil-items-center">
-                                <div class="perfil-text-green perfil-mr-3">
-                                    <i data-lucide="thumbs-up" class="perfil-icon"></i>
-                                </div>
-                                <div class="perfil-flex-1">
-                                    <div class="perfil-progress-bar">
-                                        <div class="perfil-progress-fill perfil-bg-green" style="width: 70%"></div>
+                            <div class="perfil-pt-12 perfil-pb-4">
+                                <div class="perfil-flex perfil-justify-between perfil-items-start">
+                                    <div>
+                                        <h2 class="perfil-name"><?= htmlspecialchars($usuario['nome']) ?></h2>
+                                        <p class="perfil-username">@<?= htmlspecialchars($usuario['matricula']) ?></p>
                                     </div>
+                                    <button class="perfil-btn-outline" onclick="location.href='editar_perfil.php'">
+                                        <i data-lucide="edit" class="perfil-icon-sm"></i> Editar
+                                    </button>
                                 </div>
-                                <span class="perfil-ml-3 perfil-text-sm">24</span>
-                            </div>
-                            <div class="perfil-flex perfil-items-center">
-                                <div class="perfil-text-gray perfil-mr-3">
-                                    <i data-lucide="heart" class="perfil-icon"></i>
-                                </div>
-                                <div class="perfil-flex-1">
-                                    <div class="perfil-progress-bar">
-                                        <div class="perfil-progress-fill perfil-bg-gray" style="width: 23%"></div>
-                                    </div>
-                                </div>
-                                <span class="perfil-ml-3 perfil-text-sm">8</span>
-                            </div>
-                            <div class="perfil-flex perfil-items-center">
-                                <div class="perfil-text-red perfil-mr-3">
-                                    <i data-lucide="thumbs-down" class="perfil-icon"></i>
-                                </div>
-                                <div class="perfil-flex-1">
-                                    <div class="perfil-progress-bar">
-                                        <div class="perfil-progress-fill perfil-bg-red" style="width: 6%"></div>
-                                    </div>
-                                </div>
-                                <span class="perfil-ml-3 perfil-text-sm">2</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="perfil-card">
-                    <div class="perfil-card-header">
-                        <div class="perfil-card-title">Conquistas</div>
-                    </div>
-                    <div class="perfil-card-content">
-                        <div class="perfil-space-y-3">
-                            <div class="perfil-flex perfil-items-start">
-                                <div class="perfil-badge perfil-mr-3">1</div>
-                                <div>
-                                    <h4 class="perfil-badge-title">Conversador Ativo</h4>
-                                    <p class="perfil-badge-desc">Mantém conversas ativas diariamente</p>
-                                </div>
-                            </div>
-                            <div class="perfil-flex perfil-items-start">
-                                <div class="perfil-badge perfil-mr-3">2</div>
-                                <div>
-                                    <h4 class="perfil-badge-title">Criador de Conteúdo</h4>
-                                    <p class="perfil-badge-desc">Publica conteúdo valioso regularmente</p>
-                                </div>
-                            </div>
-                            <div class="perfil-flex perfil-items-start">
-                                <div class="perfil-badge perfil-mr-3">3</div>
-                                <div>
-                                    <h4 class="perfil-badge-title">Moderador</h4>
-                                    <p class="perfil-badge-desc">Ajuda a manter a comunidade saudável</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Coluna de conteúdo -->
-            <div class="perfil-w-full perfil-md-w-2-3">
-                <div class="perfil-tabs">
-                    <ul class="perfil-tabs-list">
-                        <li class="perfil-tab perfil-tab-active" data-tab="activity">Atividade</li>
-                        <li class="perfil-tab" data-tab="connections">Conexões</li>
-                        <li class="perfil-tab" data-tab="groups">Grupos</li>
-                    </ul>
-                    
-                    <div class="perfil-tab-content perfil-tab-content-active" id="activity">
-                        <div class="perfil-card">
-                            <div class="perfil-card-header">
-                                <div class="perfil-card-title">Atividades Recentes</div>
-                            </div>
-                            <div class="perfil-card-content">
-                                <div class="perfil-space-y-6 perfil-relative">
-                                    <div class="perfil-timeline-line"></div>
-                                    
-                                    <div class="perfil-timeline-item">
-                                        <div class="perfil-timeline-icon">
-                                            <i data-lucide="users" class="perfil-icon-xs"></i>
-                                        </div>
-                                        <div>
-                                            <h4 class="perfil-timeline-title">Novo Match</h4>
-                                            <p class="perfil-timeline-desc">Você e Ana Paula agora estão conectados</p>
-                                            <p class="perfil-timeline-time">Hoje, 14:23</p>
-                                        </div>
-                                        <div class="perfil-divider"></div>
-                                    </div>
-                                    
-                                    <div class="perfil-timeline-item">
-                                        <div class="perfil-timeline-icon">
-                                            <i data-lucide="users" class="perfil-icon-xs"></i>
-                                        </div>
-                                        <div>
-                                            <h4 class="perfil-timeline-title">Novo Grupo</h4>
-                                            <p class="perfil-timeline-desc">Você entrou no grupo 'Desenvolvedores React Brasil'</p>
-                                            <p class="perfil-timeline-time">Ontem, 10:45</p>
-                                        </div>
-                                        <div class="perfil-divider"></div>
-                                    </div>
-                                    
-                                    <div class="perfil-timeline-item">
-                                        <div class="perfil-timeline-icon">
-                                            <i data-lucide="message-square" class="perfil-icon-xs"></i>
-                                        </div>
-                                        <div>
-                                            <h4 class="perfil-timeline-title">Chat Expirado</h4>
-                                            <p class="perfil-timeline-desc">Seu chat com Carlos Eduardo expirou após 24h</p>
-                                            <p class="perfil-timeline-time">12 Abr, 2025</p>
-                                        </div>
-                                        <div class="perfil-divider"></div>
-                                    </div>
-                                    
-                                    <div class="perfil-timeline-item">
-                                        <div class="perfil-timeline-icon">
-                                            <i data-lucide="thumbs-up" class="perfil-icon-xs"></i>
-                                        </div>
-                                        <div>
-                                            <h4 class="perfil-timeline-title">Reputação Aumentada</h4>
-                                            <p class="perfil-timeline-desc">Você recebeu 3 avaliações positivas esta semana</p>
-                                            <p class="perfil-timeline-time">10 Abr, 2025</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="perfil-tab-content" id="connections">
-                        <div class="perfil-card">
-                            <div class="perfil-card-header">
-                                <div class="perfil-card-title">Minhas Conexões</div>
-                            </div>
-                            <div class="perfil-card-content">
-                                <p class="perfil-text-gray perfil-mb-4">Você possui 128 conexões</p>
                                 
-                                <div class="perfil-grid perfil-grid-cols-1 perfil-md-grid-cols-2 perfil-gap-4">
-                                    <?php for($i = 1; $i <= 4; $i++): ?>
-                                    <div class="perfil-connection-item">
-                                        <div class="perfil-connection-avatar">
-                                            <img src="https://i.pravatar.cc/150?img=<?php echo $i + 20; ?>" alt="Usuário <?php echo $i; ?>">
+                                <p class="perfil-mt-4 perfil-bio">
+                                    <?= !empty($config['bio']) ? htmlspecialchars($config['bio']) : 'Nenhuma biografia fornecida' ?>
+                                </p>
+                                
+                                <div class="perfil-flex perfil-items-center perfil-mt-4 perfil-text-gray perfil-text-sm">
+                                    <i data-lucide="calendar" class="perfil-icon-sm perfil-mr-2"></i>
+                                    <span>Membro desde <?= date('M Y', strtotime($usuario['criado_em'])) ?></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="perfil-card">
+                        <div class="perfil-card-header">
+                            <div class="perfil-card-title">Estatísticas</div>
+                        </div>
+                        <div class="perfil-card-content">
+                            <div class="perfil-grid perfil-grid-cols-4 perfil-gap-4 perfil-text-center">
+                                <div>
+                                    <p class="perfil-stats-value"><?= $estatisticas['conexoes'] ?></p>
+                                    <p class="perfil-stats-label">Conexões</p>
+                                </div>
+                                <div>
+                                    <p class="perfil-stats-value"><?= $estatisticas['grupos'] ?></p>
+                                    <p class="perfil-stats-label">Grupos</p>
+                                </div>
+                                <div>
+                                    <p class="perfil-stats-value"><?= $estatisticas['eventos'] ?></p>
+                                    <p class="perfil-stats-label">Eventos</p>
+                                </div>
+                                <div>
+                                    <p class="perfil-stats-value"><?= $estatisticas['materiais'] ?></p>
+                                    <p class="perfil-stats-label">Materiais</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="perfil-card">
+                        <div class="perfil-card-header">
+                            <div class="perfil-card-title">Conquistas</div>
+                        </div>
+                        <div class="perfil-card-content">
+                            <div class="perfil-space-y-3">
+                                <?php if (in_array('Conectivo', $estatisticas['conquistas'])): ?>
+                                <div class="perfil-flex perfil-items-start">
+                                    <div class="perfil-badge perfil-mr-3">1</div>
+                                    <div>
+                                        <h4 class="perfil-badge-title">Conectivo</h4>
+                                        <p class="perfil-badge-desc">Possui conexões com outros usuários</p>
+                                    </div>
+                                </div>
+                                <?php endif; ?>
+                                
+                                <?php if (in_array('Participativo', $estatisticas['conquistas'])): ?>
+                                <div class="perfil-flex perfil-items-start">
+                                    <div class="perfil-badge perfil-mr-3">2</div>
+                                    <div>
+                                        <h4 class="perfil-badge-title">Participativo</h4>
+                                        <p class="perfil-badge-desc">Participa de grupos da comunidade</p>
+                                    </div>
+                                </div>
+                                <?php endif; ?>
+                                
+                                <?php if (in_array('Organizador', $estatisticas['conquistas'])): ?>
+                                <div class="perfil-flex perfil-items-start">
+                                    <div class="perfil-badge perfil-mr-3">3</div>
+                                    <div>
+                                        <h4 class="perfil-badge-title">Organizador</h4>
+                                        <p class="perfil-badge-desc">Criou eventos na plataforma</p>
+                                    </div>
+                                </div>
+                                <?php endif; ?>
+                                
+                                <?php if (in_array('Contribuidor', $estatisticas['conquistas'])): ?>
+                                <div class="perfil-flex perfil-items-start">
+                                    <div class="perfil-badge perfil-mr-3">4</div>
+                                    <div>
+                                        <h4 class="perfil-badge-title">Contribuidor</h4>
+                                        <p class="perfil-badge-desc">Compartilhou materiais úteis</p>
+                                    </div>
+                                </div>
+                                <?php endif; ?>
+                                
+                                <?php if (empty($estatisticas['conquistas'])): ?>
+                                    <p class="perfil-text-gray">Nenhuma conquista ainda. Participe mais da comunidade!</p>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Coluna de conteúdo -->
+                <div class="perfil-w-full perfil-md-w-2-3">
+                    <div class="perfil-tabs">
+                        <ul class="perfil-tabs-list">
+                            <li class="perfil-tab perfil-tab-active" data-tab="activity">Atividade</li>
+                            <li class="perfil-tab" data-tab="connections">Conexões</li>
+                            <li class="perfil-tab" data-tab="groups">Grupos</li>
+                        </ul>
+                        
+                        <div class="perfil-tab-content perfil-tab-content-active" id="activity">
+                            <div class="perfil-card">
+                                <div class="perfil-card-header">
+                                    <div class="perfil-card-title">Atividades Recentes</div>
+                                </div>
+                                <div class="perfil-card-content">
+                                    <div class="perfil-space-y-6 perfil-relative">
+                                        <div class="perfil-timeline-line"></div>
+                                        
+                                        <?php if (empty($atividades)): ?>
+                                            <p class="perfil-text-gray">Nenhuma atividade recente.</p>
+                                        <?php else: ?>
+                                            <?php foreach ($atividades as $atividade): ?>
+                                                <div class="perfil-timeline-item">
+                                                    <div class="perfil-timeline-icon">
+                                                        <?php 
+                                                        $icone = 'users';
+                                                        $cor = '#0d6efd';
+                                                        
+                                                        if ($atividade['tipo'] === 'match') {
+                                                            $icone = 'users';
+                                                            $cor = '#4f46e5';
+                                                        } elseif ($atividade['tipo'] === 'grupo') {
+                                                            $icone = 'users';
+                                                            $cor = '#7c3aed';
+                                                        } elseif ($atividade['tipo'] === 'evento') {
+                                                            $icone = 'calendar';
+                                                            $cor = '#0ea5e9';
+                                                        } elseif ($atividade['tipo'] === 'material') {
+                                                            $icone = 'file-text';
+                                                            $cor = '#10b981';
+                                                        }
+                                                        ?>
+                                                        <i data-lucide="<?= $icone ?>" class="perfil-icon-xs" style="color: <?= $cor ?>"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h4 class="perfil-timeline-title"><?= htmlspecialchars($atividade['titulo']) ?></h4>
+                                                        <p class="perfil-timeline-desc"><?= htmlspecialchars($atividade['descricao']) ?></p>
+                                                        <p class="perfil-timeline-time">
+                                                            <?= date('d M, Y H:i', strtotime($atividade['data'])) ?>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="perfil-tab-content" id="connections">
+                            <div class="perfil-card">
+                                <div class="perfil-card-header">
+                                    <div class="perfil-card-title">Minhas Conexões</div>
+                                </div>
+                                <div class="perfil-card-content">
+                                    <p class="perfil-text-gray perfil-mb-4">Você possui <?= $estatisticas['conexoes'] ?> conexões</p>
+                                    
+                                    <?php if (empty($conexoes)): ?>
+                                        <p class="perfil-text-gray">Você ainda não tem conexões. Explore a comunidade para conhecer novas pessoas!</p>
+                                    <?php else: ?>
+                                        <div class="perfil-grid perfil-grid-cols-1 perfil-md-grid-cols-2 perfil-gap-4">
+                                            <?php foreach ($conexoes as $conexao): ?>
+                                                <div class="perfil-connection-item">
+                                                    <div class="perfil-connection-avatar">
+                                                        <?php 
+                                                        $nome = urlencode($conexao['nome']);
+                                                        $cor = substr(md5($conexao['nome']), 0, 6);
+                                                        ?>
+                                                        <img src="https://ui-avatars.com/api/?name=<?= $nome ?>&background=<?= $cor ?>&color=fff" 
+                                                             alt="<?= htmlspecialchars($conexao['nome']) ?>">
+                                                    </div>
+                                                    <div class="perfil-ml-3 perfil-flex-1">
+                                                        <h4 class="perfil-connection-name"><?= htmlspecialchars($conexao['nome']) ?></h4>
+                                                        <p class="perfil-connection-username">@<?= htmlspecialchars($conexao['matricula']) ?></p>
+                                                    </div>
+                                                    <button class="perfil-btn-ghost" 
+                                                            onclick="location.href='chat.php?usuario_id=<?= $conexao['idusuario'] ?>'">
+                                                        <i data-lucide="message-square" class="perfil-icon-sm"></i>
+                                                    </button>
+                                                </div>
+                                            <?php endforeach; ?>
                                         </div>
-                                        <div class="perfil-ml-3 perfil-flex-1">
-                                            <h4 class="perfil-connection-name">Usuário <?php echo $i; ?></h4>
-                                            <p class="perfil-connection-username">@usuario<?php echo $i; ?></p>
-                                        </div>
-                                        <button class="perfil-btn-ghost">
-                                            <i data-lucide="message-square" class="perfil-icon-sm"></i>
+                                        
+                                        <button class="perfil-btn-secondary perfil-w-full perfil-mt-4"
+                                                onclick="location.href='conexoes.php'">
+                                            Ver todas as conexões
                                         </button>
-                                    </div>
-                                    <?php endfor; ?>
+                                    <?php endif; ?>
                                 </div>
-                                
-                                <button class="perfil-btn-secondary perfil-w-full perfil-mt-4">
-                                    Ver todas as conexões
-                                </button>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="perfil-tab-content" id="groups">
-                        <div class="perfil-card">
-                            <div class="perfil-card-header">
-                                <div class="perfil-card-title">Meus Grupos</div>
-                            </div>
-                            <div class="perfil-card-content">
-                                <p class="perfil-text-gray perfil-mb-4">Você participa de 5 grupos</p>
-                                
-                                <div class="perfil-space-y-4">
-                                    <?php for($i = 1; $i <= 3; $i++): ?>
-                                    <div class="perfil-group-item">
-                                        <div class="perfil-group-avatar">
-                                            <img src="https://i.pravatar.cc/150?img=<?php echo $i + 50; ?>" alt="Grupo <?php echo $i; ?>">
-                                        </div>
-                                        <div class="perfil-ml-3 perfil-flex-1">
-                                            <h4 class="perfil-group-name">Grupo <?php echo $i; ?></h4>
-                                            <p class="perfil-group-members">123 membros</p>
-                                            <p class="perfil-group-desc perfil-mt-1">Descrição breve do grupo <?php echo $i; ?>...</p>
-                                        </div>
-                                        <button class="perfil-btn-outline">
-                                            Ver grupo
-                                        </button>
-                                    </div>
-                                    <?php endfor; ?>
+                        
+                        <div class="perfil-tab-content" id="groups">
+                            <div class="perfil-card">
+                                <div class="perfil-card-header">
+                                    <div class="perfil-card-title">Meus Grupos</div>
                                 </div>
-                                
-                                <button class="perfil-btn-secondary perfil-w-full perfil-mt-4">
-                                    Ver todos os grupos
-                                </button>
+                                <div class="perfil-card-content">
+                                    <p class="perfil-text-gray perfil-mb-4">Você participa de <?= $estatisticas['grupos'] ?> grupos</p>
+                                    
+                                    <?php if (empty($grupos)): ?>
+                                        <p class="perfil-text-gray">Você ainda não participa de nenhum grupo. Explore a aba comunidades para encontrar grupos interessantes!</p>
+                                    <?php else: ?>
+                                        <div class="perfil-space-y-4">
+                                            <?php foreach ($grupos as $grupo): ?>
+                                                <div class="perfil-group-item">
+                                                    <div class="perfil-group-avatar">
+                                                        <?php 
+                                                        $nome = urlencode($grupo['nome']);
+                                                        $cor = substr(md5($grupo['nome']), 0, 6);
+                                                        ?>
+                                                        <img src="https://ui-avatars.com/api/?name=<?= $nome ?>&background=<?= $cor ?>&color=fff" 
+                                                             alt="<?= htmlspecialchars($grupo['nome']) ?>">
+                                                    </div>
+                                                    <div class="perfil-ml-3 perfil-flex-1">
+                                                        <h4 class="perfil-group-name"><?= htmlspecialchars($grupo['nome']) ?></h4>
+                                                        <p class="perfil-group-members"><?= $grupo['total_membros'] ?> membros</p>
+                                                        <p class="perfil-group-desc perfil-mt-1">
+                                                            <?= htmlspecialchars(mb_strimwidth($grupo['descricao'], 0, 60, '...')) ?>
+                                                        </p>
+                                                    </div>
+                                                    <button class="perfil-btn-outline"
+                                                            onclick="location.href='grupo.php?id=<?= $grupo['id'] ?>'">
+                                                        Ver grupo
+                                                    </button>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                        
+                                        <button class="perfil-btn-secondary perfil-w-full perfil-mt-4"
+                                                onclick="location.href='comunidades.php?tab=meus_grupos'">
+                                            Ver todos os grupos
+                                        </button>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -325,7 +366,5 @@
             });
         });
     </script>
-    </div>
-    
 </body>
 </html>
